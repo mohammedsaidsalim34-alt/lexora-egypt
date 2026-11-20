@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0A192F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ليكسورا | Lexora - التطبيق القانوني الذكي في مصر</title>
+
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#060F1E',
+                            900: '#0A192F',
+                            800: '#112240',
+                            700: '#1D3557',
+                            600: '#2A4A7F',
+                        },
+                        gold: {
+                            300: '#F3E5AB',
+                            400: '#E5C158',
+                            500: '#D4AF37',
+                            600: '#C5A059',
+                            700: '#9A741B',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'Tajawal', 'sans-serif'],
+                        body: ['Tajawal', 'Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #F1F5F9;
+            color: #0A192F;
+            overscroll-behavior-y: none;
+        }
+        .gold-gradient {
+            background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%);
+        }
+        .navy-gradient {
+            background: linear-gradient(135deg, #0A192F 0%, #112240 65%, #18315A 100%);
+        }
+        .app-screen {
+            display: none;
+            animation: fadeSlideUp 0.25s ease-out forwards;
+        }
+        .app-screen.active {
+            display: block;
+        }
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Print styles for Contract Preview */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-contract-area, #printable-contract-area * {
+                visibility: visible;
+            }
+            #printable-contract-area {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 24px;
+                background: white !important;
+                color: black !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-gold-500 selection:text-navy-900 pb-24">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-16 left-4 right-4 md:left-auto md:right-6 md:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Native-Like Top App Header -->
+    <header class="sticky top-0 z-40 bg-navy-900 text-white border-b border-gold-500/25 shadow-md">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+            <!-- App Brand -->
+            <div onclick="switchTab('home')" class="flex items-center gap-2.5 cursor-pointer">
+                <div class="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center text-navy-900 shadow-md shrink-0">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                        <path d="M7 21h10"/>
+                        <path d="M12 3v18"/>
+                        <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-lg sm:text-xl font-extrabold tracking-tight text-white">ليكسورا</span>
+                        <span class="text-[10px] font-bold tracking-widest uppercase text-gold-400 border border-gold-500/40 px-1.5 py-0.5 rounded">LEXORA</span>
+                    </div>
+                    <p class="text-[10px] text-slate-300 leading-none mt-0.5">التطبيق القانوني الذكي في مصر</p>
+                </div>
+            </div>
+
+            <!-- Right Controls: Active Role Badge + Profile/Login -->
+            <div class="flex items-center gap-2">
+                <button onclick="openAuthModal()" id="header-auth-btn" class="flex items-center gap-2 bg-navy-800 hover:bg-navy-700 border border-gold-500/40 px-3 py-2 rounded-xl text-xs font-bold text-gold-300 transition-all">
+                    <i data-lucide="user-circle" class="w-4 h-4 text-gold-400"></i>
+                    <span id="header-user-label">حسابي / الدخول</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main App Viewport Container -->
+    <main class="max-w-5xl mx-auto px-4 pt-4 sm:pt-6">
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 1: HOME (الرئيسية)                                 -->
+        <!-- ========================================================= -->
+        <section id="screen-home" class="app-screen active space-y-6">
+            
+            <!-- Personalized Welcome Banner & Role Selector -->
+            <div class="navy-gradient rounded-3xl p-5 sm:p-7 text-white shadow-xl border border-gold-500/30 relative overflow-hidden">
+                <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-gold-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <span id="home-role-badge" class="inline-flex items-center gap-1.5 text-xs font-bold bg-gold-500/20 text-gold-300 border border-gold-400/30 px-3 py-1 rounded-full">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-gold-400"></i>
+                        <span>وضع التصفح: فرد / مواطن مصري</span>
+                    </span>
+                    <button onclick="openAuthModal()" class="text-xs text-gold-400 underline font-semibold">تغيير الصفة أو تسجيل الدخول</button>
+                </div>
+
+                <h1 id="home-greeting-title" class="text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug">
+                    أهلاً بك في <span class="text-gold-400">ليكسورا</span> — مستشارك القانوني في جيبك
+                </h1>
+                <p id="home-greeting-sub" class="text-xs sm:text-sm text-slate-300 font-body mt-1.5 max-w-2xl leading-relaxed">
+                    استشر محامين معتمدين بالنقابة، صِغ عقودك القانونية، احسب المواريث الشرعية بدقة، أو اسأل المساعد الذكي وفقاً للقانون المصري.
+                </p>
+
+                <!-- Quick Role Switch Pills inside Hero -->
+                <div class="mt-5 pt-4 border-t border-white/10 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                    <span class="text-[11px] text-slate-400 shrink-0">تصفح كـ:</span>
+                    <button onclick="setQuickRole('individual')" id="qrole-individual" class="qrole-pill px-3 py-1.5 rounded-xl text-xs font-bold bg-gold-500 text-navy-900 shrink-0 transition-all">فرد / مواطن</button>
+                    <button onclick="setQuickRole('lawyer')" id="qrole-lawyer" class="qrole-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-navy-800 text-slate-200 border border-white/10 shrink-0 transition-all">محامي معتمد</button>
+                    <button onclick="setQuickRole('student')" id="qrole-student" class="qrole-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-navy-800 text-slate-200 border border-white/10 shrink-0 transition-all">طالب حقوق</button>
+                </div>
+            </div>
+
+            <!-- Quick Access App Grid (6 Core Modules) -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-base sm:text-lg font-extrabold text-navy-900">الخدمات والأدوات السريعة</h2>
+                    <span class="text-xs text-slate-500">اختر الخدمة للبدء</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <!-- Card 1 -->
+                    <button onclick="switchTab('directory')" class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-gold-500 transition-all text-right flex flex-col justify-between group">
+                        <div class="w-11 h-11 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                            <i data-lucide="scale" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm sm:text-base text-navy-900">استشر محامياً</h3>
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-body">دليل المحامين المعتمدين بمصر</p>
+                        </div>
+                    </button>
+
+                    <!-- Card 2 -->
+                    <button onclick="switchTab('ai')" class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-gold-500 transition-all text-right flex flex-col justify-between group">
+                        <div class="w-11 h-11 rounded-xl gold-gradient text-navy-900 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm sm:text-base text-navy-900">مساعد ليكسورا AI</h3>
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-body">إجابات فورية بالقانون المصري</p>
+                        </div>
+                    </button>
+
+                    <!-- Card 3 -->
+                    <button onclick="openToolSubTab('contracts')" class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-gold-500 transition-all text-right flex flex-col justify-between group">
+                        <div class="w-11 h-11 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                            <i data-lucide="file-signature" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm sm:text-base text-navy-900">صيغ العقود</h3>
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-body">نماذج جاهزة للتعديل والطباعة</p>
+                        </div>
+                    </button>
+
+                    <!-- Card 4 -->
+                    <button onclick="openToolSubTab('inheritance')" class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-gold-500 transition-all text-right flex flex-col justify-between group">
+                        <div class="w-11 h-11 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                            <i data-lucide="calculator" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm sm:text-base text-navy-900">حاسبة المواريث</h3>
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-body">وفق القانون 77 لسنة 1943</p>
+                        </div>
+                    </button>
+
+                    <!-- Card 5 -->
+                    <button onclick="openAcademySubTab('internships')" class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-gold-500 transition-all text-right flex flex-col justify-between group">
+                        <div class="w-11 h-11 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                            <i data-lucide="briefcase" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm sm:text-base text-navy-900">فرص التدريب</h3>
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-body">لطلاب الحقوق والخريجين</p>
+                        </div>
+                    </button>
+
+                    <!-- Card 6 -->
+                    <button onclick="openAcademySubTab('courses')" class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-gold-500 transition-all text-right flex flex-col justify-between group">
+                        <div class="w-11 h-11 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-sm sm:text-base text-navy-900">الأكاديمية القانونية</h3>
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-body">ورش صياغة ومرافعات عملية</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Featured Legal Knowledge Hub -->
+            <div class="pt-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-extrabold text-navy-900">المعرفة القانونية المبسطة</h2>
+                        <p class="text-xs text-slate-500">أدلة عملية لفهم حقوقك في التشريعات المصرية</p>
+                    </div>
+                    <!-- Category Filter Chips -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                        <button onclick="filterArticles('all', this)" class="art-chip active px-3 py-1.5 rounded-xl text-xs font-bold bg-navy-900 text-white shrink-0">الكل</button>
+                        <button onclick="filterArticles('labor', this)" class="art-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 shrink-0">العمل</button>
+                        <button onclick="filterArticles('family', this)" class="art-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 shrink-0">الأحوال الشخصية</button>
+                        <button onclick="filterArticles('realestate', this)" class="art-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 shrink-0">الإيجارات والعقارات</button>
+                        <button onclick="filterArticles('corporate', this)" class="art-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 shrink-0">الشركات</button>
+                        <button onclick="filterArticles('criminal', this)" class="art-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 shrink-0">الجنائي</button>
+                    </div>
+                </div>
+
+                <div id="articles-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- User's Saved Bookings & Applications (Visible if any exist) -->
+            <div id="my-activity-section" class="hidden bg-white rounded-2xl border border-gold-500/40 p-4 sm:p-5 shadow-sm">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="bookmark-check" class="w-5 h-5 text-gold-600"></i>
+                    <h3 class="font-extrabold text-sm sm:text-base text-navy-900">سجل حجوزاتي وطلباتي السحابية</h3>
+                </div>
+                <div id="my-activity-list" class="space-y-2 text-xs sm:text-sm"></div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 2: LAWYERS DIRECTORY (دليل المحامين المعتمدين)     -->
+        <!-- ========================================================= -->
+        <section id="screen-directory" class="app-screen space-y-5">
+            <div class="bg-navy-900 text-white rounded-3xl p-5 sm:p-6 border border-gold-500/30 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-gold-400">مقيدون بنقابة المحامين المصرية</span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold mt-1">دليل المحامين المعتمدين</h2>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-1 font-body">اختر المحافظة والتخصص واحجز استشارتك أونلاين أو في المكتب.</p>
+                    </div>
+                    <button onclick="openAddLawyerModal()" class="gold-gradient text-navy-900 font-extrabold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0 shadow">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        <span>أضف ملفك كمحامٍ معتمد</span>
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-5">
+                    <select id="dir-gov-filter" onchange="renderLawyersList()" class="bg-navy-800 border border-gold-500/30 text-white text-xs sm:text-sm rounded-xl px-3 py-2.5 focus:outline-none">
+                        <option value="all">كل المحافظات</option>
+                        <option value="القاهرة">القاهرة</option>
+                        <option value="الجيزة">الجيزة</option>
+                        <option value="الإسكندرية">الإسكندرية</option>
+                        <option value="الشرقية">الشرقية</option>
+                        <option value="الإسماعيلية">الإسماعيلية</option>
+                        <option value="الدقهلية">الدقهلية</option>
+                    </select>
+
+                    <select id="dir-spec-filter" onchange="renderLawyersList()" class="bg-navy-800 border border-gold-500/30 text-white text-xs sm:text-sm rounded-xl px-3 py-2.5 focus:outline-none">
+                        <option value="all">كل التخصصات</option>
+                        <option value="تجاري وشركات">تجاري وشركات</option>
+                        <option value="أحوال شخصية">أحوال شخصية</option>
+                        <option value="جنائي">جنائي</option>
+                        <option value="مدني">مدني وعقارات</option>
+                        <option value="عمالي">عمالي وتأمينات</option>
+                        <option value="مجلس دولة">مجلس دولة وإداري</option>
+                    </select>
+
+                    <input id="dir-search-input" oninput="renderLawyersList()" type="text" placeholder="ابحث باسم المحامي..." class="col-span-2 sm:col-span-1 bg-navy-800 border border-gold-500/30 text-white placeholder-slate-400 text-xs sm:text-sm rounded-xl px-3 py-2.5 focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Lawyers Cards Container -->
+            <div id="lawyers-directory-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Populated via JS + Firestore -->
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 3: LEXORA AI ASSISTANT (المساعد القانوني الذكي)    -->
+        <!-- ========================================================= -->
+        <section id="screen-ai" class="app-screen">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden flex flex-col h-[calc(100vh-170px)] min-h-[500px]">
+                <!-- Chat Header -->
+                <div class="bg-navy-900 text-white p-4 flex items-center justify-between border-b border-gold-500/30">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl gold-gradient text-navy-900 flex items-center justify-center shadow">
+                            <i data-lucide="bot" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="font-extrabold text-sm sm:text-base">مساعد ليكسورا الذكي (Lexora AI)</h2>
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            </div>
+                            <p class="text-[11px] text-gold-300">متخصص في القوانين والتشريعات المصرية</p>
+                        </div>
+                    </div>
+                    <button onclick="clearAiChat()" class="text-xs text-slate-300 hover:text-white bg-white/10 px-3 py-1.5 rounded-xl">
+                        محادثة جديدة
+                    </button>
+                </div>
+
+                <!-- Preset Quick Prompt Chips -->
+                <div class="bg-slate-50 px-3 py-2.5 border-b border-slate-200 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+                    <span class="text-[11px] font-bold text-navy-900 shrink-0">اقتراحات:</span>
+                    <button onclick="sendPresetPrompt('صياغة إنذار قانوني رسمي على يد محضر لعدم سداد الأجرة')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-gold-500 text-xs font-semibold text-navy-900 shrink-0">صياغة إنذار قانوني</button>
+                    <button onclick="sendPresetPrompt('ما هي حقوق العامل في الفصل التعسفي وفق قانون العمل المصري؟')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-gold-500 text-xs font-semibold text-navy-900 shrink-0">حقوق العامل في الفصل التعسفي</button>
+                    <button onclick="sendPresetPrompt('اشرح لي إجراءات رفع دعوى صحة توقيع في المحكمة المصرية والمستندات المطلوبة')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-gold-500 text-xs font-semibold text-navy-900 shrink-0">إجراءات دعوى صحة توقيع</button>
+                    <button onclick="sendPresetPrompt('لخص لي أركان الجريمة في قانون العقوبات المصري لطلاب الحقوق')" class="px-3 py-1.5 rounded-xl bg-navy-900/5 border border-navy-900/20 hover:border-gold-500 text-xs font-semibold text-navy-900 shrink-0">لخص أركان الجريمة (للطلاب)</button>
+                    <button onclick="sendPresetPrompt('ما الفرق بين الفسخ والانفساخ في القانون المدني المصري؟')" class="px-3 py-1.5 rounded-xl bg-navy-900/5 border border-navy-900/20 hover:border-gold-500 text-xs font-semibold text-navy-900 shrink-0">الفرق بين الفسخ والانفساخ</button>
+                    <button onclick="sendPresetPrompt('اشرح موانع الميراث في القانون المصري رقم 77 لسنة 1943')" class="px-3 py-1.5 rounded-xl bg-navy-900/5 border border-navy-900/20 hover:border-gold-500 text-xs font-semibold text-navy-900 shrink-0">شرح موانع الميراث</button>
+                </div>
+
+                <!-- Messages Stream -->
+                <div id="ai-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50">
+                    <!-- Welcome Message -->
+                    <div class="flex items-start gap-3 max-w-[90%]">
+                        <div class="w-8 h-8 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center shrink-0 mt-1">
+                            <i data-lucide="scale" class="w-4 h-4"></i>
+                        </div>
+                        <div class="bg-white border border-slate-200 rounded-2xl rounded-tr-none p-3.5 shadow-sm text-xs sm:text-sm text-navy-900 leading-relaxed font-body">
+                            أهلاً بك في <strong>مساعد ليكسورا القانوني الذكي</strong>. اسألني عن أي إجراء قضائي في مصر، أو اطلب صياغة مبدئية لعقد أو إنذار، أو ملخصاً دراسياً لمواد القانون.
+                            <span class="block text-[11px] text-slate-400 mt-2">* ملحوظة: الإجابات للتوعية والمساعدة ولا تغني عن مراجعة محامٍ مقيد بالنقابة.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Bar -->
+                <form onsubmit="handleAiSubmit(event)" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
+                    <input id="ai-prompt-input" type="text" required placeholder="اكتب سؤالك القانوني هنا..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:border-gold-500">
+                    <button type="submit" id="ai-send-btn" class="gold-gradient text-navy-900 font-bold px-4 py-3 rounded-xl flex items-center justify-center gap-1.5 shrink-0 shadow hover:brightness-105">
+                        <span class="hidden sm:inline text-sm">إرسال</span>
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 4: LEGAL TOOLS (صيغ العقود + حاسبة المواريث)       -->
+        <!-- ========================================================= -->
+        <section id="screen-tools" class="app-screen space-y-5">
+            <!-- Sub-navigation Toggle -->
+            <div class="bg-white p-1.5 rounded-2xl border border-slate-200 grid grid-cols-2 gap-1.5 shadow-sm">
+                <button onclick="switchToolSub('contracts')" id="subtab-contracts" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-gold-400 flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span>صيغ العقود الجاهزة</span>
+                </button>
+                <button onclick="switchToolSub('inheritance')" id="subtab-inheritance" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="calculator" class="w-4 h-4"></i>
+                    <span>حاسبة المواريث الشرعية</span>
+                </button>
+            </div>
+
+            <!-- SUB-VIEW A: CONTRACT TEMPLATES LIBRARY -->
+            <div id="tool-view-contracts" class="space-y-4">
+                <div class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm">
+                    <h2 class="text-lg sm:text-xl font-extrabold text-navy-900 mb-1">مكتبة صيغ العقود المصرية القابلة للتعديل</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-4">اختر نموذج العقد، أدخل بيانات الأطراف لتحديث الصيغة تلقائياً، ثم انسخها أو اطبعها كملف PDF.</p>
+
+                    <!-- Template Selector Pills -->
+                    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 border-b border-slate-100">
+                        <button onclick="selectContractTemplate('rent', this)" class="contract-pill active px-3.5 py-2 rounded-xl text-xs font-bold bg-navy-900 text-white shrink-0">عقد إيجار قانون جديد</button>
+                        <button onclick="selectContractTemplate('sale', this)" class="contract-pill px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-navy-900 shrink-0">عقد بيع ابتدائي لشقة</button>
+                        <button onclick="selectContractTemplate('employment', this)" class="contract-pill px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-navy-900 shrink-0">عقد عمل فردي</button>
+                        <button onclick="selectContractTemplate('company', this)" class="contract-pill px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-navy-900 shrink-0">عقد تأسيس شركة تضامن</button>
+                        <button onclick="selectContractTemplate('receipt', this)" class="contract-pill px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-navy-900 shrink-0">إقرار استلام نقدية</button>
+                    </div>
+
+                    <!-- Dynamic Form Fields for Contract Parties -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 my-4 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+                        <div>
+                            <label class="block text-[11px] font-bold text-navy-900 mb-1">اسم الطرف الأول</label>
+                            <input id="c-party1" oninput="updateContractPreview()" type="text" placeholder="أحمد محمد محمود" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-navy-900 mb-1">الرقم القومي (الطرف الأول)</label>
+                            <input id="c-id1" oninput="updateContractPreview()" type="text" placeholder="2900101010XXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-navy-900 mb-1">اسم الطرف الثاني</label>
+                            <input id="c-party2" oninput="updateContractPreview()" type="text" placeholder="محمود علي حسن" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-navy-900 mb-1">القيمة المالية / الأجرة (ج.م)</label>
+                            <input id="c-amount" oninput="updateContractPreview()" type="text" placeholder="5,000 جنيه مصري" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Editable Contract Live Preview -->
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-gold-700 flex items-center gap-1">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>يمكنك التعديل المباشر داخل نص العقد أدناه:</span>
+                            </span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="copyContractText()" class="px-3 py-1.5 rounded-xl bg-navy-900 text-white text-xs font-bold flex items-center gap-1.5 hover:bg-navy-800">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5 text-gold-400"></i>
+                                    <span>نسخ النص</span>
+                                </button>
+                                <button onclick="window.print()" class="px-3 py-1.5 rounded-xl gold-gradient text-navy-900 text-xs font-extrabold flex items-center gap-1.5 hover:brightness-105">
+                                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                                    <span>طباعة / PDF</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="printable-contract-area" class="bg-white border-2 border-slate-300 rounded-2xl p-5 sm:p-7 shadow-inner">
+                            <textarea id="contract-editor-box" rows="15" class="w-full text-xs sm:text-sm text-navy-900 font-body leading-loose focus:outline-none resize-y"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-VIEW B: EGYPTIAN INHERITANCE CALCULATOR -->
+            <div id="tool-view-inheritance" class="hidden space-y-4">
+                <div class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm">
+                    <div class="flex items-start justify-between gap-3 mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-gold-700 bg-gold-500/15 px-2.5 py-1 rounded-lg">قانون المواريث المصري رقم 77 لسنة 1943</span>
+                            <h2 class="text-lg sm:text-xl font-extrabold text-navy-900 mt-2">حاسبة المواريث الشرعية والقانونية</h2>
+                            <p class="text-xs sm:text-sm text-slate-500 font-body">أدخل صافي قيمة التركة (بعد سداد الديون وتنفيذ الوصايا) وحدد الورثة الأحياء لحساب الأنصبة الشرعية وقواعد الحجب.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Inputs Column -->
+                        <div class="lg:col-span-5 space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <div>
+                                <label class="block text-xs font-extrabold text-navy-900 mb-1">صافي قيمة التركة (بالجنيه المصري)</label>
+                                <input id="inh-estate" type="number" min="1" value="1200000" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-extrabold text-navy-900 text-base bg-white focus:outline-none focus:border-gold-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-extrabold text-navy-900 mb-1">الزوجية</label>
+                                <select id="inh-spouse" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white">
+                                    <option value="none">لا يوجد زوج / زوجة</option>
+                                    <option value="husband">زوج</option>
+                                    <option value="wife1">زوجة واحدة</option>
+                                    <option value="wife2">زوجتان (تشتركان في النصيب)</option>
+                                    <option value="wife3">3 زوجات</option>
+                                    <option value="wife4">4 زوجات</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer">
+                                    <input id="inh-father" type="checkbox" class="w-4 h-4 accent-navy-900">
+                                    <span class="text-xs font-bold text-navy-900">الأب على قيد الحياة</span>
+                                </label>
+                                <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer">
+                                    <input id="inh-mother" type="checkbox" checked class="w-4 h-4 accent-navy-900">
+                                    <span class="text-xs font-bold text-navy-900">الأم على قيد الحياة</span>
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-navy-900 mb-1">عدد الأبناء الذكور</label>
+                                    <input id="inh-sons" type="number" min="0" max="20" value="1" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-navy-900 mb-1">عدد البنات</label>
+                                    <input id="inh-daughters" type="number" min="0" max="20" value="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-navy-900 mb-1">إخوة أشقاء (ذكور)</label>
+                                    <input id="inh-brothers" type="number" min="0" max="20" value="0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-navy-900 mb-1">أخوات شقيقات (إناث)</label>
+                                    <input id="inh-sisters" type="number" min="0" max="20" value="0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+                                </div>
+                            </div>
+
+                            <button onclick="calculateInheritance()" class="w-full py-3 rounded-xl gold-gradient text-navy-900 font-extrabold text-sm shadow-md hover:brightness-105 transition-all flex items-center justify-center gap-2">
+                                <i data-lucide="calculator" class="w-4 h-4"></i>
+                                <span>احسب الأنصبة الشرعية</span>
+                            </button>
+                        </div>
+
+                        <!-- Results Table Column -->
+                        <div class="lg:col-span-7 flex flex-col justify-between">
+                            <div id="inh-results-container" class="space-y-3">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 5: INTERNSHIPS & LEGAL ACADEMY (التدريب والأكاديمية) -->
+        <!-- ========================================================= -->
+        <section id="screen-academy" class="app-screen space-y-5">
+            <!-- Sub-navigation Toggle -->
+            <div class="bg-white p-1.5 rounded-2xl border border-slate-200 grid grid-cols-2 gap-1.5 shadow-sm">
+                <button onclick="switchAcademySub('internships')" id="subtab-internships" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-gold-400 flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i>
+                    <span>فرص التدريب (مكاتب وشركات)</span>
+                </button>
+                <button onclick="switchAcademySub('courses')" id="subtab-courses" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                    <span>الأكاديمية والملخصات</span>
+                </button>
+            </div>
+
+            <!-- SUB-VIEW A: INTERNSHIPS -->
+            <div id="academy-view-internships" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-navy-900">فرص التدريب الميداني والصيفي في مصر</h2>
+                        <p class="text-xs text-slate-500">مخصصة لطلاب كليات الحقوق والخريجين الجدد (جدول عام)</p>
+                    </div>
+                </div>
+                <div id="internships-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- SUB-VIEW B: LEGAL EDUCATION & SUMMARIES -->
+            <div id="academy-view-courses" class="hidden space-y-4">
+                <div>
+                    <h2 class="text-lg font-extrabold text-navy-900">الأكاديمية القانونية التطبيقية</h2>
+                    <p class="text-xs text-slate-500">دورات عملية وملخصات مركزة لسد الفجوة بين الدراسة وسوق المحاماة المصري</p>
+                </div>
+                <div id="courses-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- FIXED BOTTOM TAB NAVIGATION BAR (5 TABS - NATIVE APP FEEL) -->
+    <!-- ========================================================= -->
+    <nav class="fixed bottom-0 inset-x-0 z-40 bg-navy-900/95 backdrop-blur-md border-t border-gold-500/30 shadow-2xl">
+        <div class="max-w-5xl mx-auto grid grid-cols-5 h-16 px-1">
+            <button onclick="switchTab('home')" id="nav-tab-home" class="bottom-nav-btn active flex flex-col items-center justify-center gap-1 text-gold-400">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-[10px] sm:text-xs font-extrabold">الرئيسية</span>
+            </button>
+
+            <button onclick="switchTab('directory')" id="nav-tab-directory" class="bottom-nav-btn flex flex-col items-center justify-center gap-1 text-slate-300 hover:text-gold-400">
+                <i data-lucide="scale" class="w-5 h-5"></i>
+                <span class="text-[10px] sm:text-xs font-semibold">الدليل</span>
+            </button>
+
+            <button onclick="switchTab('ai')" id="nav-tab-ai" class="bottom-nav-btn flex flex-col items-center justify-center gap-1 text-slate-300 hover:text-gold-400 relative">
+                <div class="w-9 h-9 -mt-3 rounded-2xl gold-gradient text-navy-900 flex items-center justify-center shadow-lg border-2 border-navy-900">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[10px] sm:text-xs font-bold text-gold-300">الذكاء القانوني</span>
+            </button>
+
+            <button onclick="switchTab('tools')" id="nav-tab-tools" class="bottom-nav-btn flex flex-col items-center justify-center gap-1 text-slate-300 hover:text-gold-400">
+                <i data-lucide="file-signature" class="w-5 h-5"></i>
+                <span class="text-[10px] sm:text-xs font-semibold">الأدوات</span>
+            </button>
+
+            <button onclick="switchTab('academy')" id="nav-tab-academy" class="bottom-nav-btn flex flex-col items-center justify-center gap-1 text-slate-300 hover:text-gold-400">
+                <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                <span class="text-[10px] sm:text-xs font-semibold">التدريب والتعليم</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========================================================= -->
+    <!-- MODALS                                                    -->
+    <!-- ========================================================= -->
+
+    <!-- 1. Auth & Profile Modal (Firebase Auth + Firestore Profile) -->
+    <div id="auth-modal" class="fixed inset-0 z-50 hidden bg-navy-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-gold-500/30">
+            <div class="p-5 bg-navy-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="user-check" class="w-5 h-5 text-gold-400"></i>
+                    <h3 class="font-extrabold text-base sm:text-lg">حسابك في منصة ليكسورا</h3>
+                </div>
+                <button onclick="closeModal('auth-modal')" class="p-1.5 rounded-lg bg-white/10 text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form onsubmit="saveUserProfile(event)" class="p-5 space-y-4">
+                <p class="text-xs text-slate-500 font-body">سجّل بياناتك لحفظ استشاراتك، طلبات التدريب، أو للانضمام كمحامٍ معتمد في الدليل السحابي.</p>
+                
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1.5">اختر صفتك في المنصة</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="userRole" value="individual" checked class="peer sr-only">
+                            <div class="p-2.5 text-center rounded-xl border border-slate-200 peer-checked:border-gold-500 peer-checked:bg-navy-900 peer-checked:text-gold-400 text-xs font-bold">
+                                فرد / مواطن
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="userRole" value="lawyer" class="peer sr-only">
+                            <div class="p-2.5 text-center rounded-xl border border-slate-200 peer-checked:border-gold-500 peer-checked:bg-navy-900 peer-checked:text-gold-400 text-xs font-bold">
+                                محامي معتمد
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="userRole" value="student" class="peer sr-only">
+                            <div class="p-2.5 text-center rounded-xl border border-slate-200 peer-checked:border-gold-500 peer-checked:bg-navy-900 peer-checked:text-gold-400 text-xs font-bold">
+                                طالب حقوق
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1">الاسم الكامل</label>
+                    <input id="auth-name" type="text" required placeholder="مثال: كريم عبد الله" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">المحافظة</label>
+                        <select id="auth-gov" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+                            <option value="القاهرة">القاهرة</option>
+                            <option value="الجيزة">الجيزة</option>
+                            <option value="الإسكندرية">الإسكندرية</option>
+                            <option value="الشرقية">الشرقية</option>
+                            <option value="الإسماعيلية">الإسماعيلية</option>
+                            <option value="الدقهلية">الدقهلية</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">رقم الهاتف</label>
+                        <input id="auth-phone" type="tel" required placeholder="010XXXXXXXX" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-xl gold-gradient text-navy-900 font-extrabold text-sm shadow-lg">
+                    حفظ وتفعيل الحساب السحابي
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Add Lawyer to Firestore Directory Modal -->
+    <div id="add-lawyer-modal" class="fixed inset-0 z-50 hidden bg-navy-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-gold-500/30">
+            <div class="p-5 bg-navy-900 text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-base sm:text-lg">إضافة ملف محامٍ معتمد للدليل</h3>
+                <button onclick="closeModal('add-lawyer-modal')" class="p-1.5 rounded-lg bg-white/10 text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form onsubmit="submitNewLawyer(event)" class="p-5 space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1">الاسم المهني للمحامي</label>
+                    <input id="nl-name" type="text" required placeholder="أ. طارق محمود الشاذلي" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">درجة القيد بالنقابة</label>
+                        <select id="nl-level" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+                            <option value="محامٍ بالنقض">محامٍ بالنقض</option>
+                            <option value="استئناف عالي ومجلس دولة">استئناف عالي ومجلس دولة</option>
+                            <option value="محاكم ابتدائية">محاكم ابتدائية</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">التخصص الرئيسي</label>
+                        <select id="nl-spec" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+                            <option value="تجاري وشركات">تجاري وشركات</option>
+                            <option value="أحوال شخصية">أحوال شخصية</option>
+                            <option value="جنائي">جنائي</option>
+                            <option value="مدني">مدني وعقارات</option>
+                            <option value="عمالي">عمالي وتأمينات</option>
+                            <option value="مجلس دولة">مجلس دولة وإداري</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">المحافظة</label>
+                        <select id="nl-gov" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+                            <option value="القاهرة">القاهرة</option>
+                            <option value="الجيزة">الجيزة</option>
+                            <option value="الإسكندرية">الإسكندرية</option>
+                            <option value="الشرقية">الشرقية</option>
+                            <option value="الإسماعيلية">الإسماعيلية</option>
+                            <option value="الدقهلية">الدقهلية</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">سنوات الخبرة</label>
+                        <input id="nl-exp" type="number" min="1" max="50" value="10" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">رسوم الاستشارة</label>
+                        <input id="nl-fee" type="number" min="100" value="350" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1">رقم القيد بالنقابة (للتحقق)</label>
+                    <input id="nl-barid" type="text" required placeholder="مثال: 348920" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm">
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl gold-gradient text-navy-900 font-extrabold text-sm shadow-lg">
+                    نشر الملف في الدليل العام فوراً
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Book Consultation Modal (Saves to Firestore) -->
+    <div id="book-modal" class="fixed inset-0 z-50 hidden bg-navy-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-gold-500/30">
+            <div class="p-5 bg-navy-900 text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-base sm:text-lg">حجز استشارة قانونية</h3>
+                <button onclick="closeModal('book-modal')" class="p-1.5 rounded-lg bg-white/10 text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form onsubmit="submitBooking(event)" class="p-5 space-y-4">
+                <div id="book-lawyer-info" class="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm"></div>
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1">الاسم الكامل</label>
+                    <input id="bk-client-name" type="text" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1">رقم الموبايل (واتساب)</label>
+                    <input id="bk-client-phone" type="tel" required placeholder="010XXXXXXXX" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1">ملخص الاستشارة</label>
+                    <textarea id="bk-notes" rows="3" required placeholder="اشرح موضوعك القانوني باختصار..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl gold-gradient text-navy-900 font-extrabold text-sm shadow-lg">
+                    تأكيد الحجز وحفظه
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Apply Internship Modal (Saves to Firestore) -->
+    <div id="intern-modal" class="fixed inset-0 z-50 hidden bg-navy-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-gold-500/30">
+            <div class="p-5 bg-navy-900 text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-base sm:text-lg">التقديم على فرصة التدريب</h3>
+                <button onclick="closeModal('intern-modal')" class="p-1.5 rounded-lg bg-white/10 text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form onsubmit="submitInternshipApp(event)" class="p-5 space-y-3.5">
+                <div id="intern-target-info" class="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs"></div>
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1">الاسم الرباعي</label>
+                    <input id="int-name" type="text" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">الجامعة</label>
+                        <input id="int-uni" type="text" required placeholder="حقوق القاهرة" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-navy-900 mb-1">الفرقة / التخرج</label>
+                        <input id="int-year" type="text" required placeholder="الفرقة الرابعة" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 mb-1">رقم الهاتف</label>
+                    <input id="int-phone" type="tel" required placeholder="011XXXXXXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl gold-gradient text-navy-900 font-extrabold text-sm shadow-lg">
+                    إرسال طلب التدريب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. Article / Lesson Reader Modal -->
+    <div id="reader-modal" class="fixed inset-0 z-50 hidden bg-navy-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-gold-500/30">
+            <div class="p-5 bg-navy-900 text-white flex items-start justify-between gap-3">
+                <div>
+                    <span id="reader-badge" class="text-xs font-bold bg-gold-500/20 text-gold-400 px-2.5 py-1 rounded-lg"></span>
+                    <h3 id="reader-title" class="text-base sm:text-xl font-extrabold mt-2"></h3>
+                </div>
+                <button onclick="closeModal('reader-modal')" class="p-1.5 rounded-lg bg-white/10 text-white shrink-0">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="reader-body" class="p-5 sm:p-6 overflow-y-auto space-y-3 text-xs sm:text-sm text-slate-700 font-body leading-relaxed"></div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- FIREBASE & APPLICATION LOGIC (MODULE SCRIPT)              -->
+    <!-- ========================================================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, addDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Initialization (Environment Config with Safe Fallback)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lexora-egypt-app';
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        async function initFirebase() {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = user;
+                        if (user) {
+                            subscribeToCloudData(user.uid);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn("Running in standalone mode:", err);
+            }
+        }
+
+        // Subscribe to Public Lawyers & User Activity in Firestore
+        function subscribeToCloudData(uid) {
+            if (!db || !currentUser) return;
+
+            // 1. Listen to custom lawyers added to Firestore public collection
+            const lawyersCol = collection(db, 'artifacts', appId, 'public', 'data', 'lawyers');
+            onSnapshot(lawyersCol, (snapshot) => {
+                const cloudLawyers = [];
+                snapshot.forEach(docSnap => {
+                    cloudLawyers.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                window.cloudLawyersList = cloudLawyers;
+                window.renderLawyersList();
+            }, (error) => {
+                console.warn("Firestore lawyers sync note:", error.message);
+            });
+
+            // 2. Listen to user's private profile
+            const profileDoc = doc(db, 'artifacts', appId, 'users', uid, 'profile', 'info');
+            onSnapshot(profileDoc, (docSnap) => {
+                if (docSnap.exists()) {
+                    const p = docSnap.data();
+                    window.applyUserProfileUI(p);
+                }
+            }, () => {});
+
+            // 3. Listen to user's bookings & applications
+            const activityCol = collection(db, 'artifacts', appId, 'users', uid, 'activities');
+            onSnapshot(activityCol, (snapshot) => {
+                const items = [];
+                snapshot.forEach(d => items.push(d.data()));
+                window.renderUserActivities(items);
+            }, () => {});
+        }
+
+        // Expose Firestore write helpers to global window
+        window.saveProfileToCloud = async (profileData) => {
+            window.applyUserProfileUI(profileData);
+            if (!db || !currentUser) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'info'), profileData);
+            } catch (e) {
+                console.warn(e);
+            }
+        };
+
+        window.addLawyerToCloud = async (lawyerObj) => {
+            window.cloudLawyersList = [lawyerObj, ...(window.cloudLawyersList || [])];
+            window.renderLawyersList();
+            if (!db || !currentUser) return;
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'lawyers'), lawyerObj);
+            } catch (e) {
+                console.warn(e);
+            }
+        };
+
+        window.saveActivityToCloud = async (activityObj) => {
+            window.localActivities = [activityObj, ...(window.localActivities || [])];
+            window.renderUserActivities(window.localActivities);
+            if (!db || !currentUser) return;
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'activities'), activityObj);
+            } catch (e) {
+                console.warn(e);
+            }
+        };
+
+        initFirebase();
+    </script>
+
+    <!-- ========================================================= -->
+    <!-- MAIN UI, AI ASSISTANT, CONTRACTS & INHERITANCE SCRIPT     -->
+    <!-- ========================================================= -->
+    <script>
+        // ================= DATASETS =================
+        window.cloudLawyersList = [];
+        window.localActivities = [];
+
+        const defaultLawyers = [
+            { id: 'l1', name: 'أ.د. حسام الدين الشناوي', level: 'محامٍ بالنقض', spec: 'تجاري وشركات', gov: 'القاهرة', exp: 22, fee: 600, rating: 4.9, barId: '112045' },
+            { id: 'l2', name: 'أ. ياسمين عبد العزيز', level: 'استئناف عالي ومجلس دولة', spec: 'أحوال شخصية', gov: 'الجيزة', exp: 14, fee: 400, rating: 4.8, barId: '245890' },
+            { id: 'l3', name: 'أ. مصطفى كمال الجوهري', level: 'محامٍ بالنقض', spec: 'جنائي', gov: 'الإسكندرية', exp: 19, fee: 500, rating: 4.9, barId: '154320' },
+            { id: 'l4', name: 'أ. سلمى إبراهيم النجار', level: 'استئناف عالي ومجلس دولة', spec: 'مدني', gov: 'الإسماعيلية', exp: 11, fee: 300, rating: 4.7, barId: '310982' },
+            { id: 'l5', name: 'أ. عمر فاروق الحديدي', level: 'محاكم ابتدائية', spec: 'عمالي', gov: 'الدقهلية', exp: 7, fee: 250, rating: 4.8, barId: '412009' },
+            { id: 'l6', name: 'أ. رانيا محمد السعيد', level: 'استئناف عالي ومجلس دولة', spec: 'مجلس دولة', gov: 'الشرقية', exp: 15, fee: 450, rating: 4.9, barId: '229841' }
+        ];
+
+        const legalArticles = [
+            {
+                id: 1, cat: 'labor', catLabel: 'قانون العمل',
+                title: 'حقوق العامل عند الفصل التعسفي ومكافأة نهاية الخدمة',
+                summary: 'متى يُعد الفصل تعسفياً في القانون المصري؟ وكيف تحتسب التعويض القانوني وإجراءات شكوى مكتب العمل.',
+                body: `<p class="font-bold text-navy-900">أولاً: متى يكون الفصل تعسفياً؟</p><p>إذا أنهى صاحب العمل عقد العمل غير محدد المدة دون مبرر مشروع أو دون العرض على المحكمة العمالية المختصة، يحق للعامل المطالبة بتعويض لا يقل عن أجر شهرين عن كل سنة خدمة.</p><p class="font-bold text-navy-900">ثانياً: المستحقات المالية</p><ul class="list-disc pr-5 space-y-1"><li>تعويض الفصل التعسفي (شهرين عن كل سنة).</li><li>مقابل مهلة الإخطار (شهران أو ثلاثة أشهر حسب مدة الخدمة).</li><li>رصيد الإجازات الاعتيادية غير المستنفدة.</li></ul>`
+            },
+            {
+                id: 2, cat: 'realestate', catLabel: 'الإيجارات والعقارات',
+                title: 'الفرق بين التسجيل بالشهر العقاري ودعوى صحة التوقيع',
+                summary: 'دليل عملي لحماية ملكيتك عند شراء عقار في مصر وتجنب النزاعات القضائية.',
+                body: `<p class="font-bold text-navy-900">دعوى صحة التوقيع:</p><p>دعوى تحفظية تثبت فقط صدور التوقيع من البائع، ولا تنقل الملكية العقارية.</p><p class="font-bold text-navy-900">التسجيل في الشهر العقاري (قانون 9 لسنة 2022):</p><p>هو الطريق الوحيد لنقل الملكية رسمياً، وأصبح يتم خلال سقف زمني محدد بعد فصل ضريبة التصرفات العقارية عن إجراءات الشهر.</p>`
+            },
+            {
+                id: 3, cat: 'family', catLabel: 'الأحوال الشخصية',
+                title: 'إجراءات دعاوى النفقة والرؤية وقائمة المنقولات الزوجية',
+                summary: 'شرح مبسط لدور مكاتب تسوية المنازعات الأسرية وأنواع النفقات المستحقة للزوجة والصغار.',
+                body: `<p class="font-bold text-navy-900">مكاتب التسوية:</p><p>يشترط القانون التقدم بطلب لمكتب تسوية المنازعات الأسرية قبل رفع معظم دعاوى الأسرة.</p><p class="font-bold text-navy-900">النفقة المؤقتة:</p><p>يحق للزوجة طلب نفقة مؤقتة واجبة النفاذ لحين الفصل في أصل الدعوى وتقدير دخل الزوج.</p>`
+            },
+            {
+                id: 4, cat: 'corporate', catLabel: 'الشركات',
+                title: 'تأسيس شركة ذات مسؤولية محدودة في هيئة الاستثمار (GAFI)',
+                summary: 'المستندات المطلوبة وحجز الاسم التجاري واستخراج السجل التجاري والبطاقة الضريبية.',
+                body: `<p class="font-bold text-navy-900">خطوات التأسيس:</p><ul class="list-disc pr-5 space-y-1"><li>استخراج شهادة عدم التباس الاسم التجاري.</li><li>تقديم سند حيازة مقر الشركة (إيجار موثق أو تمليك).</li><li>توقيع عقد التأسيس إلكترونياً أو أمام الشهر العقاري بالهيئة.</li></ul>`
+            },
+            {
+                id: 5, cat: 'criminal', catLabel: 'الجنائي',
+                title: 'ضوابط الحبس الاحتياطي وحقوق المتهم في مرحلة التحقيق',
+                summary: 'الحدود القصوى لمدة الحبس الاحتياطي وحق المتهم في حضور محاميه أمام النيابة العامة.',
+                body: `<p class="font-bold text-navy-900">حق الدفاع الأصيل:</p><p>يكفل الدستور المصري وقانون الإجراءات الجنائية حق كل متهم في الاستعانة بمحامٍ أثناء التحقيقات، وعدم جواز استجوابه في الجنايات إلا بحضور محاميه.</p>`
+            }
+        ];
+
+        const internshipsList = [
+            { id: 'i1', title: 'تدريب صيفي بقسم الشركات والاستثمار', firm: 'مكتب الشناوي وشركاه للمحاماة', loc: 'القاهرة - جاردن سيتي', target: 'طلاب الفرقة 3 و 4', paid: 'مدفوع البدل' },
+            { id: 'i2', title: 'محامٍ متدرب (جدول عام) - قضايا مدنية', firm: 'مؤسسة الدلتا للمحاماة', loc: 'الإسكندرية - سموحة', target: 'خريجو الحقوق', paid: 'راتب تدريبي' },
+            { id: 'i3', title: 'برنامج التدريب العملي على صياغة العقود', firm: 'مجموعة النيل القانونية', loc: 'الجيزة - الشيخ زايد', target: 'طلاب وخريجون', paid: 'شهادة معتمدة' },
+            { id: 'i4', title: 'تدريب ميداني في قضايا الأسرة ومجلس الدولة', firm: 'مكتب أ. ياسمين عبد العزيز', loc: 'الجيزة - الدقي', target: 'خريجو الحقوق', paid: 'مكافأة شهرية' }
+        ];
+
+        const academyCourses = [
+            {
+                id: 'c1', badge: 'ورشة تطبيقية', title: 'فن صياغة العقود التجارية والمدنية في مصر',
+                instructor: 'د. حسام الدين الشناوي', duration: '12 محاضرة + نماذج',
+                summary: `<p class="font-bold text-navy-900">محاور الدورة:</p><ul class="list-disc pr-5 space-y-1"><li>البناء الهيكلي للعقد (الديباجة، التمهيد، البنود الجوهرية).</li><li>صياغة الشرط الجزائي وشرط التحكيم وفق القانون المصري.</li><li>أخطاء شائعة تؤدي لبطلان العقود وكيفية تلافيها.</li></ul>`
+            },
+            {
+                id: 'c2', badge: 'للمحامين الشباب', title: 'إجراءات التقاضي أمام المحاكم المدنية ومجلس الدولة',
+                instructor: 'أ. رانيا محمد السعيد', duration: '10 محاضرات عملية',
+                summary: `<p class="font-bold text-navy-900">محاور الدورة:</p><ul class="list-disc pr-5 space-y-1"><li>كيفية قيد صحيفة الدعوى وإعلانها قانوناً.</li><li>إعداد حوافظ المستندات ومذكرات الدفاع الختامية.</li><li>مواعيد الطعن بالاستئناف والنقض.</li></ul>`
+            },
+            {
+                id: 'c3', badge: 'ملخص دراسي', title: 'الملخص الشامل في النظرية العامة للالتزامات (القانون المدني)',
+                instructor: 'أكاديمية ليكسورا', duration: 'ملخص تفاعلي للطلاب',
+                summary: `<p class="font-bold text-navy-900">أهم النقاط:</p><p>مصادر الالتزام الخمسة (العقد، الإرادة المنفردة، العمل غير المشروع، الإثراء بلا سبب، القانون) مع أمثلة تطبيقية من أحكام محكمة النقض المصرية.</p>`
+            },
+            {
+                id: 'c4', badge: 'تخصصي', title: 'مبادئ التحكيم التجاري الدولي والداخلي (قانون 27 لسنة 1994)',
+                instructor: 'د. حسام الدين الشناوي', duration: '8 محاضرات',
+                summary: `<p class="font-bold text-navy-900">محاور الدورة:</p><p>اتفاق التحكيم، تشكيل هيئة التحكيم، إجراءات الخصومة التحكيمية، ودعوى بطلان حكم التحكيم.</p>`
+            }
+        ];
+
+        const contractTemplates = {
+            rent: (p1, id1, p2, amt) => `عقد إيجار محدد المدة (خاضع لأحكام القانون رقم 4 لسنة 1996)
+
+إنه في يوم الموافق    /    / 2026 م، تحرر هذا العقد بين كل من:
+أولاً: السيد / ${p1 || '........................................'} ، مصري الجنسية، المقيم في .......................... ، ويحمل بطاقة رقم قومي (${id1 || '........................'}) . (طرف أول - مؤجر)
+ثانياً: السيد / ${p2 || '........................................'} ، مصري الجنسية، المقيم في .......................... ، ويحمل بطاقة رقم قومي (........................) . (طرف ثانٍ - مستأجر)
+
+تمهيد:
+يمتلك الطرف الأول الشقة الكائنة بالعقار رقم (   ) شارع ...................... قسم ............ محافظة ............ ، وقد رغب الطرف الثاني في استئجارها بغرض السكن الخاص، واتفقا على الآتي:
+
+البند الأول: يُعتبر التمهيد السابق جزءاً لا يتجزأ من هذا العقد.
+البند الثاني: أجر الطرف الأول للطرف الثاني الشقة الموضحة بالتمهيد لمدة (......) سنوات تبدأ من   /   / 2026 وتنتهي في   /   / 2028 غير قابلة للتجديد إلا بعقد جديد.
+البند الثالث: القيمة الإيجارية الشهرية المتفق عليها هي مبلغ (${amt || '.......... جنيه مصري'}) تُدفع مقدماً أول كل شهر بموجب إيصال موقع من الطرف الأول.
+البند الرابع: دفع الطرف الثاني مبلغ (.......... جنيه) كتأمين يُرد عند انتهاء العقد وتسليم العين بحالتها.
+البند الخامس: يلتزم الطرف الثاني بسداد فواتير الكهرباء والمياه والغاز طوال مدة الإيجار.
+البند السادس: تختص محاكم ............ بنظر أي نزاع ينشأ عن تنفيذ هذا العقد.
+
+توقيع الطرف الأول (المؤجر)                    توقيع الطرف الثاني (المستأجر)`,
+
+            sale: (p1, id1, p2, amt) => `عقد بيع ابتدائي لوحدة سكنية
+
+إنه في يوم الموافق    /    / 2026 م، تم الاتفاق بين كل من:
+أولاً: السيد / ${p1 || '........................................'} ، رقم قومي (${id1 || '........................'}) . (طرف أول - بائع)
+ثانياً: السيد / ${p2 || '........................................'} ، رقم قومي (........................) . (طرف ثانٍ - مشترٍ)
+
+البند الأول: باع وأسقط وتنازل الطرف الأول للطرف الثاني عن الشقة رقم (   ) بالدور (   ) بالعقار الكائن في .......................... والبالغ مساحتها (.....) متر مربع.
+البند الثاني: تم هذا البيع نظير ثمن إجمالي وقدره (${amt || '................ جنيه مصري'})، دُفع منه مبلغ (..........) عند التوقيع، والباقي يُسدد على النحو التالي: ..........................
+البند الثالث: يقر الطرف الأول بخلو العين المبيعة من كافة الحقوق العينية والرهون والديون، وبضمانه عدم التعرض القانوني أو المادي للمشتري.
+البند الرابع: يلتزم البائع بالحضور أمام المحكمة المختصة للإقرار بصحة توقيعه على هذا العقد، وكذلك التوقيع أمام مأمورية الشهر العقاري لنقل الملكية.
+
+توقيع الطرف الأول (البائع)                     توقيع الطرف الثاني (المشتري)`,
+
+            employment: (p1, id1, p2, amt) => `عقد عمل فردي (وفقاً لقانون العمل المصري)
+
+تحرر هذا العقد بتاريخ    /    / 2026 بين كل من:
+أولاً: شركة / مؤسسة ${p1 || '........................................'} ويمثلها قانوناً السيد / .......................... (طرف أول - صاحب عمل)
+ثانياً: السيد / ${p2 || '........................................'} ، رقم قومي (${id1 || '........................'}) . (طرف ثانٍ - عامل)
+
+البند الأول: يقبل الطرف الثاني العمل لدى الطرف الأول بوظيفة (....................) وتحت إدارته وإشرافه.
+البند الثاني: مدة هذا العقد (سنة ميلادية) تبدأ من تاريخ استلام العمل، وتخضع الثلاثة أشهر الأولى لفترة اختبار.
+البند الثالث: يتقاضى الطرف الثاني أجراً شهرياً شاملاً قدره (${amt || '............ جنيه مصري'}) يُصرف في نهاية كل شهر ميلادي.
+البند الرابع: يلتزم الطرف الثاني بالمحافظة على أسرار العمل والالتزام بمواعيد ولوائح الشركة.
+
+توقيع الطرف الأول (صاحب العمل)                  توقيع الطرف الثاني (العامل)`,
+
+            company: (p1, id1, p2, amt) => `ملخص عقد تأسيس شركة تضامن مصرية
+
+تحرر بتاريخ    /    / 2026 بين كل من:
+1- السيد / ${p1 || '........................................'} ، رقم قومي (${id1 || '........................'}) (شريك متضامن)
+2- السيد / ${p2 || '........................................'} ، رقم قومي (........................) (شريك متضامن)
+
+البند الأول: اسم الشركة وسمتها التجارية: شركة (.................... وشركاه).
+البند الثاني: غرض الشركة: ........................................................................
+البند الثالث: مركز الشركة الرئيسي: ............................................................
+البند الرابع: رأس مال الشركة: حُدد بمبلغ (${amt || '............ جنيه مصري'}) مدفوع بالتساوي / بنسب متفق عليها بين الشركاء.
+البند الخامس: الإدارة وحق التوقيع: تكون الإدارة والتوقيع للشريكين مجتمعين أو منفردين في كافة المعاملات البنكية والإدارية.
+
+توقيع الشريك الأول                              توقيع الشريك الثاني`,
+
+            receipt: (p1, id1, p2, amt) => `إقرار باستلام مبلغ نقدي
+
+أقر أنا الموقع أدناه / ${p1 || '........................................'} ، مصري الجنسية، وأحمل بطاقة رقم قومي (${id1 || '........................'}) ، والمقيم في ........................................
+بأنني قد استلمت من السيد / ${p2 || '........................................'} مبلغاً وقدره (${amt || '................ جنيه مصري'}) وذلك قيمة ........................................................................
+ويُعتبر هذا الإقرار مخالصة نهائية باستلام المبلغ المذكور أعلاه.
+
+تحريراً في:    /    / 2026 م
+المقر بما فيه: ........................................
+التوقيع: ..............................................`
+        };
+
+        let currentContractKey = 'rent';
+        let selectedLawyerForBooking = null;
+        let selectedInternshipForApp = null;
+
+        // ================= INITIALIZATION =================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderArticlesList('all');
+            window.renderLawyersList();
+            renderInternshipsList();
+            renderAcademyCourses();
+            updateContractPreview();
+            calculateInheritance();
+            lucide.createIcons();
+        });
+
+        // ================= NAVIGATION & TABS =================
+        function switchTab(tabName) {
+            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${tabName}`).classList.add('active');
+
+            document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-gold-400');
+                btn.classList.add('text-slate-300');
+            });
+
+            const activeBtn = document.getElementById(`nav-tab-${tabName}`);
+            if (activeBtn && tabName !== 'ai') {
+                activeBtn.classList.add('active', 'text-gold-400');
+                activeBtn.classList.remove('text-slate-300');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openToolSubTab(sub) {
+            switchTab('tools');
+            switchToolSub(sub);
+        }
+
+        function switchToolSub(sub) {
+            const btnC = document.getElementById('subtab-contracts');
+            const btnI = document.getElementById('subtab-inheritance');
+            const viewC = document.getElementById('tool-view-contracts');
+            const viewI = document.getElementById('tool-view-inheritance');
+
+            if (sub === 'contracts') {
+                btnC.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-gold-400 flex items-center justify-center gap-2 transition-all';
+                btnI.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all';
+                viewC.classList.remove('hidden');
+                viewI.classList.add('hidden');
+            } else {
+                btnI.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-gold-400 flex items-center justify-center gap-2 transition-all';
+                btnC.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all';
+                viewI.classList.remove('hidden');
+                viewC.classList.add('hidden');
+            }
+        }
+
+        function openAcademySubTab(sub) {
+            switchTab('academy');
+            switchAcademySub(sub);
+        }
+
+        function switchAcademySub(sub) {
+            const btnInt = document.getElementById('subtab-internships');
+            const btnCrs = document.getElementById('subtab-courses');
+            const viewInt = document.getElementById('academy-view-internships');
+            const viewCrs = document.getElementById('academy-view-courses');
+
+            if (sub === 'internships') {
+                btnInt.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-gold-400 flex items-center justify-center gap-2 transition-all';
+                btnCrs.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all';
+                viewInt.classList.remove('hidden');
+                viewCrs.classList.add('hidden');
+            } else {
+                btnCrs.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-gold-400 flex items-center justify-center gap-2 transition-all';
+                btnInt.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all';
+                viewCrs.classList.remove('hidden');
+                viewInt.classList.add('hidden');
+            }
+        }
+
+        // ================= ROLE & USER PROFILE =================
+        function setQuickRole(role) {
+            document.querySelectorAll('.qrole-pill').forEach(p => {
+                p.className = 'qrole-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-navy-800 text-slate-200 border border-white/10 shrink-0 transition-all';
+            });
+            const activePill = document.getElementById(`qrole-${role}`);
+            if (activePill) {
+                activePill.className = 'qrole-pill px-3 py-1.5 rounded-xl text-xs font-bold bg-gold-500 text-navy-900 shrink-0 transition-all';
+            }
+
+            const labels = {
+                individual: 'وضع التصفح: فرد / مواطن مصري',
+                lawyer: 'وضع التصفح: محامٍ معتمد بالنقابة',
+                student: 'وضع التصفح: طالب حقوق / خريج'
+            };
+            document.getElementById('home-role-badge').querySelector('span').textContent = labels[role];
+        }
+
+        function openAuthModal() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+
+        function saveUserProfile(e) {
+            e.preventDefault();
+            const role = document.querySelector('input[name="userRole"]:checked').value;
+            const name = document.getElementById('auth-name').value.trim();
+            const gov = document.getElementById('auth-gov').value;
+            const phone = document.getElementById('auth-phone').value.trim();
+
+            window.saveProfileToCloud({ role, name, gov, phone });
+            closeModal('auth-modal');
+            showToast(`أهلاً بك يا ${name}! تم تفعيل حسابك السحابي بنجاح.`);
+        }
+
+        window.applyUserProfileUI = (p) => {
+            const roleNames = { individual: 'فرد', lawyer: 'محامٍ معتمد', student: 'طالب حقوق' };
+            document.getElementById('header-user-label').textContent = `${p.name.split(' ')[0]} (${roleNames[p.role] || 'عضو'})`;
+            document.getElementById('home-greeting-title').innerHTML = `أهلاً بك يا <span class="text-gold-400">${p.name}</span> في ليكسورا`;
+            setQuickRole(p.role);
+        };
+
+        window.renderUserActivities = (items) => {
+            const sec = document.getElementById('my-activity-section');
+            const list = document.getElementById('my-activity-list');
+            if (!items || items.length === 0) return;
+            sec.classList.remove('hidden');
+            list.innerHTML = items.map(item => `
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+                    <div>
+                        <span class="text-[10px] font-bold text-gold-700 bg-gold-500/15 px-2 py-0.5 rounded">${item.type}</span>
+                        <p class="font-bold text-navy-900 mt-0.5">${item.title}</p>
+                    </div>
+                    <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg">${item.status}</span>
+                </div>
+            `).join('');
+        };
+
+        // ================= ARTICLES RENDERING =================
+        function renderArticlesList(cat) {
+            const container = document.getElementById('articles-list');
+            const filtered = cat === 'all' ? legalArticles : legalArticles.filter(a => a.cat === cat);
+            container.innerHTML = filtered.map(a => `
+                <div onclick="openArticleReader(${a.id})" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-gold-500 cursor-pointer transition-all flex flex-col justify-between">
+                    <div>
+                        <span class="text-[11px] font-bold text-navy-900 bg-gold-500/20 px-2.5 py-0.5 rounded-md">${a.catLabel}</span>
+                        <h3 class="font-extrabold text-sm sm:text-base text-navy-900 mt-2 leading-snug">${a.title}</h3>
+                        <p class="text-xs text-slate-600 font-body mt-1.5 leading-relaxed">${a.summary}</p>
+                    </div>
+                    <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-gold-700">
+                        <span>قراءة الشرح المبسط</span>
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function filterArticles(cat, btnEl) {
+            document.querySelectorAll('.art-chip').forEach(c => {
+                c.className = 'art-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 shrink-0';
+            });
+            btnEl.className = 'art-chip active px-3 py-1.5 rounded-xl text-xs font-bold bg-navy-900 text-white shrink-0';
+            renderArticlesList(cat);
+        }
+
+        function openArticleReader(id) {
+            const art = legalArticles.find(a => a.id === id);
+            if (!art) return;
+            document.getElementById('reader-badge').textContent = art.catLabel;
+            document.getElementById('reader-title').textContent = art.title;
+            document.getElementById('reader-body').innerHTML = art.body;
+            document.getElementById('reader-modal').classList.remove('hidden');
+        }
+
+        // ================= LAWYERS DIRECTORY =================
+        window.renderLawyersList = () => {
+            const gov = document.getElementById('dir-gov-filter').value;
+            const spec = document.getElementById('dir-spec-filter').value;
+            const q = document.getElementById('dir-search-input').value.trim().toLowerCase();
+
+            const combined = [...(window.cloudLawyersList || []), ...defaultLawyers];
+            const filtered = combined.filter(l => {
+                const matchGov = gov === 'all' || l.gov === gov;
+                const matchSpec = spec === 'all' || l.spec === spec;
+                const matchQ = !q || l.name.toLowerCase().includes(q);
+                return matchGov && matchSpec && matchQ;
+            });
+
+            const grid = document.getElementById('lawyers-directory-grid');
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full bg-white p-8 rounded-2xl text-center text-sm text-slate-500 border border-slate-200">لا يوجد محامون مطابقون لخيارات البحث الحالية.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(l => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:border-gold-500 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl navy-gradient text-gold-400 font-extrabold flex items-center justify-center shrink-0">
+                                    <i data-lucide="scale" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <h3 class="font-extrabold text-sm sm:text-base text-navy-900">${l.name}</h3>
+                                        <i data-lucide="badge-check" class="w-4 h-4 text-gold-600 shrink-0" title="مقيد بنقابة المحامين"></i>
+                                    </div>
+                                    <span class="text-xs font-semibold text-gold-700">${l.level}</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold bg-amber-50 text-amber-800 px-2 py-1 rounded-lg border border-amber-200">★ ${l.rating || '4.9'}</span>
+                        </div>
+
+                        <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                            <span><strong>التخصص:</strong> ${l.spec}</span>
+                            <span><strong>المحافظة:</strong> ${l.gov}</span>
+                            <span><strong>الخبرة:</strong> ${l.exp} سنة</span>
+                            <span><strong>قيد النقابة:</strong> معتمد ✓</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[10px] text-slate-400">رسوم الاستشارة</span>
+                            <span class="font-extrabold text-navy-900 text-sm sm:text-base">${l.fee} ج.م</span>
+                        </div>
+                        <button onclick='openBookingModal(${JSON.stringify(l).replace(/'/g, "&#39;")})' class="gold-gradient text-navy-900 font-extrabold px-4 py-2 rounded-xl text-xs sm:text-sm shadow hover:brightness-105">
+                            احجز استشارة
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+        function openAddLawyerModal() {
+            document.getElementById('add-lawyer-modal').classList.remove('hidden');
+        }
+
+        function submitNewLawyer(e) {
+            e.preventDefault();
+            const lawyerObj = {
+                name: document.getElementById('nl-name').value.trim(),
+                level: document.getElementById('nl-level').value,
+                spec: document.getElementById('nl-spec').value,
+                gov: document.getElementById('nl-gov').value,
+                exp: parseInt(document.getElementById('nl-exp').value, 10),
+                fee: parseInt(document.getElementById('nl-fee').value, 10),
+                barId: document.getElementById('nl-barid').value.trim(),
+                rating: 5.0
+            };
+            window.addLawyerToCloud(lawyerObj);
+            closeModal('add-lawyer-modal');
+            e.target.reset();
+            showToast('تم إضافة ملفك إلى دليل المحامين المعتمدين بنجاح!');
+        }
+
+        function openBookingModal(lawyer) {
+            selectedLawyerForBooking = lawyer;
+            document.getElementById('book-lawyer-info').innerHTML = `
+                <p class="font-extrabold text-navy-900">${lawyer.name}</p>
+                <p class="text-slate-600 mt-0.5">${lawyer.spec} • ${lawyer.gov} • الرسوم: <strong>${lawyer.fee} ج.م</strong></p>
+            `;
+            document.getElementById('book-modal').classList.remove('hidden');
+        }
+
+        function submitBooking(e) {
+            e.preventDefault();
+            const clientName = document.getElementById('bk-client-name').value.trim();
+            window.saveActivityToCloud({
+                type: 'حجز استشارة قانونية',
+                title: `استشارة مع ${selectedLawyerForBooking.name} (${clientName})`,
+                status: 'تم التأكيد'
+            });
+            closeModal('book-modal');
+            e.target.reset();
+            showToast('تم تسجيل حجز الاستشارة بنجاح وحفظه في سجل حسابك.');
+        }
+
+        // ================= LEXORA AI ASSISTANT (GEMINI API) =================
+        function sendPresetPrompt(text) {
+            document.getElementById('ai-prompt-input').value = text;
+            handleAiSubmit(new Event('submit'));
+        }
+
+        function clearAiChat() {
+            const box = document.getElementById('ai-chat-messages');
+            box.innerHTML = `
+                <div class="flex items-start gap-3 max-w-[90%]">
+                    <div class="w-8 h-8 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center shrink-0 mt-1">
+                        <i data-lucide="scale" class="w-4 h-4"></i>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl rounded-tr-none p-3.5 shadow-sm text-xs sm:text-sm text-navy-900 leading-relaxed font-body">
+                        تم بدء محادثة قانونية جديدة. تفضل بطرح سؤالك وفقاً للقانون المصري.
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        async function handleAiSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('ai-prompt-input');
+            const userText = input.value.trim();
+            if (!userText) return;
+
+            input.value = '';
+            appendChatBubble(userText, 'user');
+            const loadingId = appendChatBubble('جاري البحث في التشريعات المصرية وصياغة الرد...', 'ai', true);
+
+            try {
+                const reply = await callGeminiLegalAssistant(userText);
+                document.getElementById(loadingId)?.remove();
+                appendChatBubble(reply, 'ai');
+            } catch (err) {
+                document.getElementById(loadingId)?.remove();
+                appendChatBubble(getOfflineEgyptianLegalFallback(userText), 'ai');
+            }
+        }
+
+        function appendChatBubble(text, sender, isLoading = false) {
+            const box = document.getElementById('ai-chat-messages');
+            const id = 'msg-' + Date.now() + Math.random().toString(16).slice(2);
+            const div = document.createElement('div');
+            div.id = id;
+
+            if (sender === 'user') {
+                div.className = 'flex justify-end';
+                div.innerHTML = `
+                    <div class="bg-navy-900 text-white rounded-2xl rounded-tl-none px-4 py-3 max-w-[85%] text-xs sm:text-sm leading-relaxed shadow">
+                        ${text.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+            } else {
+                div.className = 'flex items-start gap-2.5 max-w-[92%]';
+                const formatted = text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center shrink-0 mt-1">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl rounded-tr-none p-3.5 shadow-sm text-xs sm:text-sm text-navy-900 leading-relaxed font-body ${isLoading ? 'animate-pulse text-slate-500' : ''}">
+                        ${formatted}
+                    </div>
+                `;
+            }
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+            lucide.createIcons();
+            return id;
+        }
+
+        async function callGeminiLegalAssistant(userQuery) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const systemPrompt = "أنت 'مساعد ليكسورا القانوني الذكي' في جمهورية مصر العربية. أجب باللغة العربية الواضحة والمهنية مستنداً إلى القوانين والتشريعات المصرية المعمول بها (القانون المدني، قانون العقوبات، قانون العمل، قانون الأحوال الشخصية، قانون المواريث 77 لسنة 1943، قانون الإجراءات الجنائية). نظم إجابتك في نقاط واضحة ومختصرة، واختم بتنويه لطيف بأن الرد للتوعية القانونية ولا يغني عن استشارة محامٍ مقيد بالنقابة.";
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            let delay = 1000;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) return text;
+                }
+                await new Promise(r => setTimeout(r, delay));
+                delay *= 2;
+            }
+            throw new Error("API unavailable");
+        }
+
+        function getOfflineEgyptianLegalFallback(q) {
+            if (q.includes('إنذار')) {
+                return `**نموذج استرشادي لإنذار على يد محضر (القانون المصري):**\n\nإنه في يوم ........ الموافق   /   / 2026\nبناءً على طلب السيد / ............ المقيم في ............ ومحله المختار مكتب الأستاذ / ............ المحامي.\nأنا ........ محضر محكمة ........ قد انتقلت وأعلنت:\nالسيد / ............ المقيم في ............\n**الموضوع:** ينبه الطالب على المعلن إليه بضرورة الوفاء بالتزامه التعاقدي خلال 15 يوماً من تاريخ الإعلان، وإلا سيضطر لاتخاذ كافة الإجراءات القانونية والقضائية ضده.\n\n*تنويه: يُراجع النص النهائي مع محامٍ قبل القيد بقلم المحضرين.*`;
+            }
+            if (q.includes('صحة توقيع')) {
+                return `**إجراءات دعوى صحة التوقيع في مصر:**\n1. **المستندات:** أصل العقد المراد إثبات صحة توقيعه + صورة بطاقة المدعي + توكيل رسمي عام قضايا.\n2. **قيد الدعوى:** تُرفع أمام المحكمة الجزئية التابع لها موطن المدعى عليه.\n3. **الإعلان والحضور:** يتم إعلان المدعى عليه بصحيفة الدعوى، وفي حال حضوره وإقراره بالتوقيع أو تخلفه عن الحضور بعد إعادة الإعلان تصدر المحكمة حكماً بصحة توقيعه.\n\n*ملحوظة: هذه الدعوى تحفظية تثبت التوقيع فقط ولا تنقل الملكية العقارية.*`;
+            }
+            return `**ملخص قانوني وفق التشريع المصري:**\n\nبخصوص استفسارك حول **"${q}"**:\n• يُنظم القانون المصري هذه المسألة وفق القواعد العامة في التقنين المدني والتشريعات الخاصة ذات الصلة.\n• يُنصح دائماً بتوثيق كافة الاتفاقات كتابةً والاحتفاظ بالمستندات الدالة على الحق قبل اتخاذ أي إجراء قضائي.\n\nيمكنك حجز استشارة مباشرة مع أحد المحامين المعتمدين في تبويب **الدليل** لمراجعة مستنداتك بالتفصيل.`;
+        }
+
+        // ================= CONTRACT TEMPLATES =================
+        function selectContractTemplate(key, btnEl) {
+            currentContractKey = key;
+            document.querySelectorAll('.contract-pill').forEach(b => {
+                b.className = 'contract-pill px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-navy-900 shrink-0';
+            });
+            btnEl.className = 'contract-pill active px-3.5 py-2 rounded-xl text-xs font-bold bg-navy-900 text-white shrink-0';
+            updateContractPreview();
+        }
+
+        function updateContractPreview() {
+            const p1 = document.getElementById('c-party1').value.trim();
+            const id1 = document.getElementById('c-id1').value.trim();
+            const p2 = document.getElementById('c-party2').value.trim();
+            const amt = document.getElementById('c-amount').value.trim();
+            document.getElementById('contract-editor-box').value = contractTemplates[currentContractKey](p1, id1, p2, amt);
+        }
+
+        function copyContractText() {
+            const editor = document.getElementById('contract-editor-box');
+            editor.select();
+            document.execCommand('copy');
+            showToast('تم نسخ صيغة العقد إلى الحافظة بنجاح!');
+        }
+
+        // ================= EGYPTIAN INHERITANCE CALCULATOR =================
+        // Based on Egyptian Inheritance Law No. 77 of 1943
+        function calculateInheritance() {
+            const estate = parseFloat(document.getElementById('inh-estate').value) || 0;
+            const spouse = document.getElementById('inh-spouse').value;
+            const hasFather = document.getElementById('inh-father').checked;
+            const hasMother = document.getElementById('inh-mother').checked;
+            const sons = parseInt(document.getElementById('inh-sons').value, 10) || 0;
+            const daughters = parseInt(document.getElementById('inh-daughters').value, 10) || 0;
+            const brothers = parseInt(document.getElementById('inh-brothers').value, 10) || 0;
+            const sisters = parseInt(document.getElementById('inh-sisters').value, 10) || 0;
+
+            const hasChildren = (sons + daughters) > 0;
+            const hasMaleDescendant = sons > 0;
+            const totalSiblings = brothers + sisters;
+
+            let shares = [];
+            let blockedNotes = [];
+
+            // 1. Spouse Share (الزوج أو الزوجات)
+            if (spouse === 'husband') {
+                const frac = hasChildren ? 1 / 4 : 1 / 2;
+                shares.push({ name: 'الزوج', fracLabel: hasChildren ? 'الربع (1/4)' : 'النصف (1/2)', share: frac, count: 1 });
+            } else if (spouse.startsWith('wife')) {
+                const wifeCount = parseInt(spouse.replace('wife', ''), 10) || 1;
+                const frac = hasChildren ? 1 / 8 : 1 / 4;
+                shares.push({
+                    name: wifeCount > 1 ? `الزوجات (${wifeCount}) بالتساوي` : 'الزوجة',
+                    fracLabel: hasChildren ? 'الثمن (1/8)' : 'الربع (1/4)',
+                    share: frac,
+                    count: wifeCount
+                });
+            }
+
+            // 2. Mother Share (الأم)
+            if (hasMother) {
+                const getsSixth = hasChildren || totalSiblings >= 2;
+                const frac = getsSixth ? 1 / 6 : 1 / 3;
+                shares.push({
+                    name: 'الأم',
+                    fracLabel: getsSixth ? 'السدس (1/6)' : 'الثلث (1/3)',
+                    share: frac,
+                    count: 1
+                });
+            }
+
+            // 3. Father Share (الأب) - Fard vs Ta'sib
+            let fatherGetsResidue = false;
+            if (hasFather) {
+                if (hasMaleDescendant) {
+                    shares.push({ name: 'الأب', fracLabel: 'السدس فرضاً (1/6)', share: 1 / 6, count: 1 });
+                } else if (daughters > 0) {
+                    shares.push({ name: 'الأب (فرضاً)', fracLabel: 'السدس (1/6) + الباقي تعصيباً', share: 1 / 6, count: 1, isFatherPlus: true });
+                    fatherGetsResidue = true;
+                } else {
+                    shares.push({ name: 'الأب', fracLabel: 'الباقي تعصيباً', share: 0, count: 1, isFatherPlus: true });
+                    fatherGetsResidue = true;
+                }
+            }
+
+            // 4. Blocking Rules for Siblings (حجب الإخوة بالأب أو الفرع الوارث الذكر)
+            let siblingsBlocked = false;
+            if (totalSiblings > 0 && (hasFather || hasMaleDescendant)) {
+                siblingsBlocked = true;
+                blockedNotes.push(`تم حجب الإخوة والأخوات حجب حرمان لوجود ${hasMaleDescendant ? 'الابن (الفرع الوارث الذكر)' : 'الأب'}.`);
+            }
+
+            // 5. Daughters Fixed Share if no Sons
+            if (daughters > 0 && sons === 0) {
+                const dFrac = daughters === 1 ? 1 / 2 : 2 / 3;
+                shares.push({
+                    name: daughters === 1 ? 'البنت' : `البنات (${daughters}) بالتساوي`,
+                    fracLabel: daughters === 1 ? 'النصف (1/2)' : 'الثلثان (2/3)',
+                    share: dFrac,
+                    count: daughters
+                });
+            }
+
+            // Calculate sum of fixed shares (Furood)
+            let totalFixed = shares.reduce((acc, s) => acc + s.share, 0);
+
+            // Handle Awl (العول) if totalFixed > 1
+            if (totalFixed > 1.0001) {
+                const factor = 1 / totalFixed;
+                shares = shares.map(s => ({
+                    ...s,
+                    share: s.share * factor,
+                    fracLabel: s.fracLabel + ' (بعد العول)'
+                }));
+                totalFixed = 1;
+                blockedNotes.push('تم تطبيق قاعدة (العول) لتجاوز مجموع الفروض أصل المسألة.');
+            }
+
+            let residue = Math.max(0, 1 - totalFixed);
+
+            // 6. Distribute Residue (التعصيب)
+            if (residue > 0.0001) {
+                if (sons > 0) {
+                    // Sons and daughters share residue: Male = 2x Female
+                    const units = (sons * 2) + daughters;
+                    const unitShare = residue / units;
+                    shares.push({
+                        name: sons === 1 ? 'الابن' : `الأبناء الذكور (${sons})`,
+                        fracLabel: daughters > 0 ? 'تعصيباً (للذكر مثل حظ الأنثيين)' : 'الباقي تعصيباً',
+                        share: unitShare * (sons * 2),
+                        count: sons
+                    });
+                    if (daughters > 0) {
+                        shares.push({
+                            name: daughters === 1 ? 'البنت' : `البنات (${daughters})`,
+                            fracLabel: 'تعصيباً بالغير مع الابن',
+                            share: unitShare * daughters,
+                            count: daughters
+                        });
+                    }
+                    residue = 0;
+                } else if (fatherGetsResidue) {
+                    const fItem = shares.find(s => s.isFatherPlus);
+                    if (fItem) fItem.share += residue;
+                    residue = 0;
+                } else if (!siblingsBlocked && totalSiblings > 0) {
+                    if (brothers > 0) {
+                        const units = (brothers * 2) + sisters;
+                        const unitShare = residue / units;
+                        shares.push({
+                            name: `الإخوة الأشقاء (${brothers})`,
+                            fracLabel: 'الباقي تعصيباً',
+                            share: unitShare * (brothers * 2),
+                            count: brothers
+                        });
+                        if (sisters > 0) {
+                            shares.push({
+                                name: `الأخوات الشقيقات (${sisters})`,
+                                fracLabel: 'تعصيباً بالغير',
+                                share: unitShare * sisters,
+                                count: sisters
+                            });
+                        }
+                        residue = 0;
+                    } else if (sisters > 0) {
+                        // Sisters alone when no children and no father
+                        const sFrac = sisters === 1 ? 1 / 2 : 2 / 3;
+                        const actualS = Math.min(residue, sFrac);
+                        shares.push({
+                            name: sisters === 1 ? 'الأخت الشقيقة' : `الأخوات الشقيقات (${sisters})`,
+                            fracLabel: sisters === 1 ? 'النصف (1/2)' : 'الثلثان (2/3)',
+                            share: actualS,
+                            count: sisters
+                        });
+                        residue -= actualS;
+                    }
+                }
+            }
+
+            // 7. Handle Radd (الرد) if residue remains and there are non-spouse blood heirs
+            if (residue > 0.0001) {
+                const bloodHeirs = shares.filter(s => !s.name.includes('الزوج'));
+                if (bloodHeirs.length > 0) {
+                    const bloodSum = bloodHeirs.reduce((a, b) => a + b.share, 0);
+                    bloodHeirs.forEach(h => {
+                        h.share += residue * (h.share / bloodSum);
+                        h.fracLabel += ' + رداً';
+                    });
+                    blockedNotes.push('تم رد الباقي من التركة على أصحاب الفروض من ذوي الرحم وفق قانون المواريث المصري.');
+                }
+            }
+
+            // Render Results Table
+            const container = document.getElementById('inh-results-container');
+            if (shares.length === 0) {
+                container.innerHTML = `<div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs sm:text-sm text-slate-500">يرجى تحديد الورثة المستحقين من القائمة لعرض التوزيع الشرعي للتركة.</div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-navy-900 text-white text-xs">
+                                <th class="p-3">الوارث</th>
+                                <th class="p-3">النصيب الشرعي</th>
+                                <th class="p-3">النسبة</th>
+                                <th class="p-3">المبلغ المستحق</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 text-xs sm:text-sm bg-white">
+                            ${shares.map(s => {
+                                const money = s.share * estate;
+                                const pct = (s.share * 100).toFixed(2);
+                                const perPerson = s.count > 1 ? `<span class="block text-[10px] text-slate-500">لكل فرد: ${(money / s.count).toLocaleString('ar-EG', { maximumFractionDigits: 0 })} ج.م</span>` : '';
+                                return `
+                                    <tr>
+                                        <td class="p-3 font-extrabold text-navy-900">${s.name}</td>
+                                        <td class="p-3 text-slate-600">${s.fracLabel}</td>
+                                        <td class="p-3 font-bold text-gold-700">${pct}%</td>
+                                        <td class="p-3 font-extrabold text-navy-900">
+                                            ${money.toLocaleString('ar-EG', { maximumFractionDigits: 0 })} ج.م
+                                            ${perPerson}
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                ${blockedNotes.map(n => `
+                    <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                        <span>${n}</span>
+                    </div>
+                `).join('')}
+            `;
+            lucide.createIcons();
+        }
+
+        // ================= INTERNSHIPS & ACADEMY =================
+        function renderInternshipsList() {
+            const container = document.getElementById('internships-list-container');
+            container.innerHTML = internshipsList.map(item => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:border-gold-500 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-navy-900 text-gold-400 px-2.5 py-1 rounded-lg">${item.target}</span>
+                            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg">${item.paid}</span>
+                        </div>
+                        <h3 class="font-extrabold text-sm sm:text-base text-navy-900">${item.title}</h3>
+                        <p class="text-xs font-semibold text-slate-600 mt-1">${item.firm}</p>
+                        <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-gold-600"></i> ${item.loc}
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                        <button onclick='openInternshipModal(${JSON.stringify(item).replace(/'/g, "&#39;")})' class="gold-gradient text-navy-900 font-extrabold px-4 py-2 rounded-xl text-xs sm:text-sm shadow">
+                            تقديم الآن
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function openInternshipModal(item) {
+            selectedInternshipForApp = item;
+            document.getElementById('intern-target-info').innerHTML = `
+                <p class="font-extrabold text-navy-900">${item.title}</p>
+                <p class="text-slate-600 mt-0.5">${item.firm} • ${item.loc}</p>
+            `;
+            document.getElementById('intern-modal').classList.remove('hidden');
+        }
+
+        function submitInternshipApp(e) {
+            e.preventDefault();
+            const applicant = document.getElementById('int-name').value.trim();
+            window.saveActivityToCloud({
+                type: 'طلب تدريب قانوني',
+                title: `${selectedInternshipForApp.title} (${applicant})`,
+                status: 'قيد المراجعة'
+            });
+            closeModal('intern-modal');
+            e.target.reset();
+            showToast('تم إرسال طلب التدريب بنجاح وحفظه في سجل حسابك!');
+        }
+
+        function renderAcademyCourses() {
+            const container = document.getElementById('courses-list-container');
+            container.innerHTML = academyCourses.map(c => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:border-gold-500 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[11px] font-bold text-gold-700 bg-gold-500/15 px-2.5 py-0.5 rounded-md">${c.badge}</span>
+                            <span class="text-[11px] text-slate-400">${c.duration}</span>
+                        </div>
+                        <h3 class="font-extrabold text-sm sm:text-base text-navy-900">${c.title}</h3>
+                        <p class="text-xs text-slate-500 mt-1">المحاضر: ${c.instructor}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                        <button onclick="openCoursePreview('${c.id}')" class="px-4 py-2 rounded-xl bg-navy-900 text-white text-xs font-bold hover:bg-navy-800">
+                            معاينة المنهج والملخص
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openCoursePreview(id) {
+            const c = academyCourses.find(item => item.id === id);
+            if (!c) return;
+            document.getElementById('reader-badge').textContent = c.badge;
+            document.getElementById('reader-title').textContent = c.title;
+            document.getElementById('reader-body').innerHTML = c.summary;
+            document.getElementById('reader-modal').classList.remove('hidden');
+        }
+
+        // ================= UTILITIES =================
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto bg-navy-900 text-white border-r-4 border-gold-500 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-bold transition-all';
+            toast.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-gold-400 shrink-0"></i><span>${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
